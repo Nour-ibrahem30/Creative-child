@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSearchParams } from 'next/navigation'
 import Navbar from '@/components/Navbar'
@@ -26,6 +26,31 @@ const allProducts = [
 const categories = ['الكل', 'ألعاب تعليمية', 'ألعاب البناء', 'فنون وحرف', 'ألعاب إلكترونية', 'ألعاب خارجية', 'ألغاز وتركيب', 'ألعاب الرضع']
 
 export default function ProductsPage() {
+    return (
+        <Suspense fallback={<ProductsPageLoading />}>
+            <ProductsContent />
+        </Suspense>
+    )
+}
+
+function ProductsPageLoading() {
+    return (
+        <main className="min-h-screen bg-dark">
+            <Navbar />
+            <div className="pt-24 pb-20">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-8">
+                        <h1 className="text-4xl font-bold text-white mb-4">جميع المنتجات</h1>
+                        <p className="text-gray-400">جاري التحميل...</p>
+                    </div>
+                </div>
+            </div>
+            <Footer />
+        </main>
+    )
+}
+
+function ProductsContent() {
     const searchParams = useSearchParams()
     const categoryFromUrl = searchParams.get('category')
     
