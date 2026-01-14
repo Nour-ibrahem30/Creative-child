@@ -3,6 +3,8 @@ import { Toaster } from 'react-hot-toast'
 import { generateMetadata as genMeta, generateOrganizationSchema, generateLocalBusinessSchema, siteConfig } from '@/lib/seo'
 import Script from 'next/script'
 import Chatbot from '@/components/Chatbot'
+import ThemeProvider from '@/components/ThemeProvider'
+import BackToTop from '@/components/BackToTop'
 
 export const metadata = genMeta({
   title: null,
@@ -41,10 +43,13 @@ export default function RootLayout({ children }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
         />
       </head>
-      <body className="font-arabic bg-dark">
-        <Toaster position="top-center" />
-        {children}
-        <Chatbot />
+      <body className="font-arabic light">
+        <ThemeProvider>
+          <Toaster position="top-center" />
+          {children}
+          <Chatbot />
+          <BackToTop />
+        </ThemeProvider>
 
         {/* Google Analytics */}
         <Script

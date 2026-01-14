@@ -1,6 +1,7 @@
 'use client'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { useThemeStore } from '@/store/themeStore'
 
 const categories = [
     { id: 1, name: 'ألعاب تعليمية', emoji: '📚', color: 'from-blue-500 to-cyan-500', count: 120 },
@@ -14,8 +15,11 @@ const categories = [
 ]
 
 export default function Categories() {
+    const { theme } = useThemeStore()
+    const isLight = theme === 'light'
+
     return (
-        <section className="py-20 bg-dark">
+        <section className={`py-20 ${isLight ? 'bg-white' : 'bg-gray-900'}`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
                 <motion.div
@@ -25,8 +29,10 @@ export default function Categories() {
                     className="text-center mb-12"
                 >
                     <span className="text-secondary font-semibold">تصفح حسب</span>
-                    <h2 className="text-3xl md:text-4xl font-bold text-white mt-2">الأقسام الرئيسية</h2>
-                    <p className="text-gray-400 mt-4 max-w-2xl mx-auto">
+                    <h2 className={`text-3xl md:text-4xl font-bold mt-2 ${isLight ? 'text-gray-900' : 'text-white'}`}>
+                        الأقسام الرئيسية
+                    </h2>
+                    <p className={`mt-4 max-w-2xl mx-auto ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>
                         اختر من بين مجموعة متنوعة من الأقسام التي تناسب اهتمامات طفلك
                     </p>
                 </motion.div>
@@ -42,12 +48,13 @@ export default function Categories() {
                             viewport={{ once: true }}
                         >
                             <Link href={`/products?category=${encodeURIComponent(category.name)}`}>
-                                <div className="group relative glass-card rounded-3xl p-6 border border-gray-800 hover:border-primary/50 transition-all duration-300 overflow-hidden">
+                                <div className={`group relative rounded-3xl p-6 transition-all duration-300 overflow-hidden ${
+                                    isLight 
+                                        ? 'bg-gray-50 border border-gray-200 hover:shadow-xl hover:border-primary/30 hover:bg-white' 
+                                        : 'bg-gray-800/50 border border-gray-700 hover:border-primary/50'
+                                }`}>
                                     {/* Background Gradient on hover */}
                                     <div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
-                                    
-                                    {/* Glow effect */}
-                                    <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur opacity-0 group-hover:opacity-100 transition-opacity -z-10" />
 
                                     {/* Emoji */}
                                     <motion.div
@@ -58,14 +65,16 @@ export default function Categories() {
                                     </motion.div>
 
                                     {/* Content */}
-                                    <h3 className="font-bold text-white group-hover:text-primary transition-colors">
+                                    <h3 className={`font-bold group-hover:text-primary transition-colors ${isLight ? 'text-gray-900' : 'text-white'}`}>
                                         {category.name}
                                     </h3>
-                                    <p className="text-sm text-gray-500 mt-1">{category.count} منتج</p>
+                                    <p className={`text-sm mt-1 ${isLight ? 'text-gray-500' : 'text-gray-500'}`}>{category.count} منتج</p>
 
                                     {/* Arrow */}
-                                    <div className="absolute bottom-4 left-4 w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center group-hover:bg-primary transition-all">
-                                        <svg className="w-4 h-4 rotate-180 text-gray-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div className={`absolute bottom-4 left-4 w-8 h-8 rounded-full flex items-center justify-center group-hover:bg-primary transition-all ${
+                                        isLight ? 'bg-gray-200' : 'bg-gray-700'
+                                    }`}>
+                                        <svg className={`w-4 h-4 rotate-180 group-hover:text-white transition-colors ${isLight ? 'text-gray-500' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                         </svg>
                                     </div>

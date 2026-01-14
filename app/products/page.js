@@ -6,6 +6,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import ProductCard from '@/components/ProductCard'
 import ProductModal from '@/components/ProductModal'
+import { useThemeStore } from '@/store/themeStore'
 import { Filter, Search, SlidersHorizontal, X } from 'lucide-react'
 
 const allProducts = [
@@ -34,14 +35,17 @@ export default function ProductsPage() {
 }
 
 function ProductsPageLoading() {
+    const { theme } = useThemeStore()
+    const isLight = theme === 'light'
+    
     return (
-        <main className="min-h-screen bg-dark">
+        <main className="min-h-screen">
             <Navbar />
             <div className="pt-24 pb-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-8">
-                        <h1 className="text-4xl font-bold text-white mb-4">جميع المنتجات</h1>
-                        <p className="text-gray-400">جاري التحميل...</p>
+                        <h1 className={`text-4xl font-bold mb-4 ${isLight ? 'text-gray-900' : 'text-white'}`}>جميع المنتجات</h1>
+                        <p className={isLight ? 'text-gray-600' : 'text-gray-400'}>جاري التحميل...</p>
                     </div>
                 </div>
             </div>
@@ -53,6 +57,9 @@ function ProductsPageLoading() {
 function ProductsContent() {
     const searchParams = useSearchParams()
     const categoryFromUrl = searchParams.get('category')
+    const searchFromUrl = searchParams.get('search')
+    const { theme } = useThemeStore()
+    const isLight = theme === 'light'
     
     const [selectedCategory, setSelectedCategory] = useState('الكل')
     const [sortBy, setSortBy] = useState('newest')
@@ -61,12 +68,17 @@ function ProductsContent() {
     const [showFilters, setShowFilters] = useState(false)
     const [selectedProduct, setSelectedProduct] = useState(null)
 
-    // تحديث الفئة من الـ URL
     useEffect(() => {
         if (categoryFromUrl && categories.includes(categoryFromUrl)) {
             setSelectedCategory(categoryFromUrl)
         }
     }, [categoryFromUrl])
+
+    useEffect(() => {
+        if (searchFromUrl) {
+            setSearchQuery(searchFromUrl)
+        }
+    }, [searchFromUrl])
 
     const filteredProducts = allProducts.filter((product) => {
         if (selectedCategory !== 'الكل' && product.category !== selectedCategory) return false
@@ -85,11 +97,17 @@ function ProductsContent() {
     })
 
     return (
-        <main className="min-h-screen bg-dark">
+        <main className="min-h-screen">
             <Navbar />
             <div className="pt-24 pb-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <PageHeader searchQuery={searchQuery} setSearchQuery={setSearchQuery} setShowFilters={setShowFilters} showFilters={showFilters} />
+                    <PageHeader 
+                        searchQuery={searchQuery} 
+                        setSearchQuery={setSearchQuery} 
+                        setShowFilters={setShowFilters} 
+                        showFilters={showFilters}
+                        isLight={isLight}
+                    />
                     <div className="flex flex-col lg:flex-row gap-8">
                         <FilterSidebar 
                             categories={categories} 
@@ -99,12 +117,14 @@ function ProductsContent() {
                             setPriceRange={setPriceRange}
                             showFilters={showFilters}
                             setShowFilters={setShowFilters}
+                            isLight={isLight}
                         />
                         <ProductsGrid 
                             products={sortedProducts} 
                             sortBy={sortBy} 
                             setSortBy={setSortBy}
                             onProductClick={setSelectedProduct}
+                            isLight={isLight}
                         />
                     </div>
                 </div>
@@ -115,8 +135,7 @@ function ProductsContent() {
     )
 }
 
-
-function PageHeader({ searchQuery, setSearchQuery, setShowFilters, showFilters }) {
+function PageHeader({ searchQuery, setSearchQuery, setShowFilters, showFilters, isLight }) {
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -124,24 +143,32 @@ function PageHeader({ searchQuery, setSearchQuery, setShowFilters, showFilters }
             className="mb-8"
         >
             <div className="text-center mb-8">
-                <h1 className="text-4xl font-bold text-white mb-4">جميع المنتجات</h1>
-                <p className="text-gray-400">اكتشف مجموعتنا الواسعة من الألعاب والوسائل التعليمية</p>
+                <h1 className={`text-4xl font-bold mb-4 ${isLight ? 'text-gray-900' : 'text-white'}`}>جميع المنتجات</h1>
+                <p className={isLight ? 'text-gray-600' : 'text-gray-400'}>اكتشف مجموعتنا الواسعة من الألعاب والوسائل التعليمية</p>
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
                 <div className="relative flex-1 max-w-md w-full">
-                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                    <Search className={`absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 ${isLight ? 'text-gray-400' : 'text-gray-500'}`} />
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="ابحث عن منتج..."
-                        className="w-full pr-12 pl-4 py-3 glass-effect border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-primary focus:outline-none transition-colors"
+                        className={`w-full pr-12 pl-4 py-3 rounded-xl transition-colors focus:outline-none focus:border-primary ${
+                            isLight 
+                                ? 'bg-white border border-gray-200 text-gray-900 placeholder-gray-400 shadow-sm' 
+                                : 'glass-effect border border-gray-700 text-white placeholder-gray-500'
+                        }`}
                     />
                 </div>
                 <button
                     onClick={() => setShowFilters(!showFilters)}
-                    className="lg:hidden flex items-center gap-2 px-4 py-3 glass-effect border border-gray-700 rounded-xl text-white"
+                    className={`lg:hidden flex items-center gap-2 px-4 py-3 rounded-xl ${
+                        isLight 
+                            ? 'bg-white border border-gray-200 text-gray-700 shadow-sm' 
+                            : 'glass-effect border border-gray-700 text-white'
+                    }`}
                 >
                     <SlidersHorizontal className="w-5 h-5" />
                     الفلاتر
@@ -151,10 +178,9 @@ function PageHeader({ searchQuery, setSearchQuery, setShowFilters, showFilters }
     )
 }
 
-function FilterSidebar({ categories, selectedCategory, setSelectedCategory, priceRange, setPriceRange, showFilters, setShowFilters }) {
+function FilterSidebar({ categories, selectedCategory, setSelectedCategory, priceRange, setPriceRange, showFilters, setShowFilters, isLight }) {
     return (
         <>
-            {/* Mobile Overlay */}
             <AnimatePresence>
                 {showFilters && (
                     <motion.div
@@ -170,21 +196,25 @@ function FilterSidebar({ categories, selectedCategory, setSelectedCategory, pric
             <motion.aside
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className={`lg:w-72 flex-shrink-0 ${showFilters ? 'fixed inset-y-0 right-0 z-50 w-80 p-4 bg-dark-lighter' : 'hidden lg:block'}`}
+                className={`lg:w-72 flex-shrink-0 ${showFilters ? `fixed inset-y-0 right-0 z-50 w-80 p-4 ${isLight ? 'bg-white' : 'bg-dark-lighter'}` : 'hidden lg:block'}`}
             >
-                <div className="glass-card rounded-2xl p-6 border border-gray-800 sticky top-24">
+                <div className={`rounded-2xl p-6 sticky top-24 ${
+                    isLight 
+                        ? 'bg-white border border-gray-200 shadow-lg' 
+                        : 'glass-card border border-gray-800'
+                }`}>
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="font-bold text-lg text-white flex items-center gap-2">
+                        <h3 className={`font-bold text-lg flex items-center gap-2 ${isLight ? 'text-gray-900' : 'text-white'}`}>
                             <Filter className="w-5 h-5 text-primary" />
                             تصفية النتائج
                         </h3>
-                        <button onClick={() => setShowFilters(false)} className="lg:hidden text-gray-400">
+                        <button onClick={() => setShowFilters(false)} className={`lg:hidden ${isLight ? 'text-gray-500' : 'text-gray-400'}`}>
                             <X className="w-5 h-5" />
                         </button>
                     </div>
 
                     <div className="mb-6">
-                        <h4 className="font-semibold mb-3 text-gray-300">الأقسام</h4>
+                        <h4 className={`font-semibold mb-3 ${isLight ? 'text-gray-700' : 'text-gray-300'}`}>الأقسام</h4>
                         <div className="space-y-2">
                             {categories.map((cat) => (
                                 <button
@@ -192,8 +222,10 @@ function FilterSidebar({ categories, selectedCategory, setSelectedCategory, pric
                                     onClick={() => setSelectedCategory(cat)}
                                     className={`block w-full text-right px-4 py-2.5 rounded-xl transition-all ${
                                         selectedCategory === cat
-                                            ? 'bg-gradient-to-r from-primary to-purple-600 text-white shadow-glow-primary'
-                                            : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                                            ? 'bg-gradient-to-r from-primary to-purple-600 text-white shadow-lg shadow-primary/30'
+                                            : isLight 
+                                                ? 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                                                : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                                     }`}
                                 >
                                     {cat}
@@ -203,7 +235,7 @@ function FilterSidebar({ categories, selectedCategory, setSelectedCategory, pric
                     </div>
 
                     <div>
-                        <h4 className="font-semibold mb-3 text-gray-300">نطاق السعر</h4>
+                        <h4 className={`font-semibold mb-3 ${isLight ? 'text-gray-700' : 'text-gray-300'}`}>نطاق السعر</h4>
                         <input
                             type="range"
                             min="0"
@@ -212,7 +244,7 @@ function FilterSidebar({ categories, selectedCategory, setSelectedCategory, pric
                             onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
                             className="w-full accent-primary"
                         />
-                        <div className="flex justify-between text-sm text-gray-500 mt-2">
+                        <div className={`flex justify-between text-sm mt-2 ${isLight ? 'text-gray-500' : 'text-gray-500'}`}>
                             <span>0 ج.م</span>
                             <span className="text-primary font-bold">{priceRange[1]} ج.م</span>
                         </div>
@@ -223,15 +255,23 @@ function FilterSidebar({ categories, selectedCategory, setSelectedCategory, pric
     )
 }
 
-function ProductsGrid({ products, sortBy, setSortBy, onProductClick }) {
+function ProductsGrid({ products, sortBy, setSortBy, onProductClick, isLight }) {
     return (
         <div className="flex-1">
-            <div className="flex items-center justify-between mb-6 glass-card rounded-xl p-4 border border-gray-800">
-                <span className="text-gray-400">{products.length} منتج</span>
+            <div className={`flex items-center justify-between mb-6 rounded-xl p-4 ${
+                isLight 
+                    ? 'bg-white border border-gray-200 shadow-sm' 
+                    : 'glass-card border border-gray-800'
+            }`}>
+                <span className={isLight ? 'text-gray-600' : 'text-gray-400'}>{products.length} منتج</span>
                 <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="bg-gray-800 text-white rounded-lg px-4 py-2 outline-none border border-gray-700 focus:border-primary"
+                    className={`rounded-lg px-4 py-2 outline-none focus:border-primary ${
+                        isLight 
+                            ? 'bg-gray-100 text-gray-900 border border-gray-200' 
+                            : 'bg-gray-800 text-white border border-gray-700'
+                    }`}
                 >
                     <option value="newest">الأحدث</option>
                     <option value="price-low">السعر: من الأقل</option>
@@ -249,8 +289,12 @@ function ProductsGrid({ products, sortBy, setSortBy, onProductClick }) {
             </div>
 
             {products.length === 0 && (
-                <div className="text-center py-20 glass-card rounded-2xl border border-gray-800">
-                    <p className="text-gray-400 text-lg">لا توجد منتجات تطابق البحث</p>
+                <div className={`text-center py-20 rounded-2xl ${
+                    isLight 
+                        ? 'bg-white border border-gray-200 shadow-sm' 
+                        : 'glass-card border border-gray-800'
+                }`}>
+                    <p className={`text-lg ${isLight ? 'text-gray-500' : 'text-gray-400'}`}>لا توجد منتجات تطابق البحث</p>
                 </div>
             )}
         </div>

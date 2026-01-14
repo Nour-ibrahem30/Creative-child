@@ -2,6 +2,7 @@
 import { motion } from 'framer-motion'
 import ProductCard from './ProductCard'
 import Link from 'next/link'
+import { useThemeStore } from '@/store/themeStore'
 
 const products = [
     { id: 1, name: 'مكعبات البناء الملونة - 100 قطعة', price: 299, oldPrice: 399, category: 'ألعاب البناء', rating: 5, reviews: 128, emoji: '🧱', isNew: true, discount: 25 },
@@ -15,11 +16,14 @@ const products = [
 ]
 
 export default function FeaturedProducts() {
+    const { theme } = useThemeStore()
+    const isLight = theme === 'light'
+
     return (
-        <section className="py-20 bg-dark-lighter relative overflow-hidden">
+        <section className={`py-20 relative overflow-hidden ${isLight ? 'bg-gray-50' : 'bg-gray-900/50'}`}>
             {/* Background decoration */}
-            <div className="absolute top-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
+            <div className={`absolute top-0 left-0 w-96 h-96 rounded-full blur-3xl ${isLight ? 'bg-primary/5' : 'bg-primary/5'}`} />
+            <div className={`absolute bottom-0 right-0 w-96 h-96 rounded-full blur-3xl ${isLight ? 'bg-secondary/5' : 'bg-secondary/5'}`} />
             
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
                 {/* Section Header */}
@@ -31,8 +35,10 @@ export default function FeaturedProducts() {
                 >
                     <div>
                         <span className="text-secondary font-semibold">الأكثر مبيعاً</span>
-                        <h2 className="text-3xl md:text-4xl font-bold text-white mt-2">منتجات مميزة</h2>
-                        <p className="text-gray-400 mt-4 max-w-xl">
+                        <h2 className={`text-3xl md:text-4xl font-bold mt-2 ${isLight ? 'text-gray-900' : 'text-white'}`}>
+                            منتجات مميزة
+                        </h2>
+                        <p className={`mt-4 max-w-xl ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>
                             اكتشف أفضل الألعاب التي يحبها الأطفال والآباء على حد سواء
                         </p>
                     </div>

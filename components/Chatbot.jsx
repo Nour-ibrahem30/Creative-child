@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MessageCircle, X, Send, Bot, User, Search, ShoppingBag, HelpCircle, Phone, Sparkles } from 'lucide-react'
 import Link from 'next/link'
+import { useThemeStore } from '@/store/themeStore'
 
 // قاعدة بيانات المنتجات الكاملة
 const productsDB = [
@@ -271,6 +272,8 @@ export default function Chatbot() {
     const [input, setInput] = useState('')
     const [isTyping, setIsTyping] = useState(false)
     const messagesEndRef = useRef(null)
+    const { theme } = useThemeStore()
+    const isLight = theme === 'light'
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -316,11 +319,13 @@ export default function Chatbot() {
                     <div className="w-16 h-16 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center shadow-lg shadow-primary/30">
                         <MessageCircle className="w-7 h-7 text-white" />
                     </div>
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-dark flex items-center justify-center">
+                    <span className={`absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 flex items-center justify-center ${isLight ? 'border-white' : 'border-dark'}`}>
                         <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
                     </span>
                     <motion.div 
-                        className="absolute -top-12 left-1/2 -translate-x-1/2 bg-white text-dark text-xs px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap"
+                        className={`absolute -top-12 left-1/2 -translate-x-1/2 text-xs px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap ${
+                            isLight ? 'bg-gray-900 text-white' : 'bg-white text-dark'
+                        }`}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 2, duration: 0.3 }}
@@ -337,12 +342,16 @@ export default function Chatbot() {
                         initial={{ opacity: 0, y: 20, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                        className="fixed bottom-6 left-6 z-50 w-[360px] sm:w-[400px] h-[600px] bg-dark-lighter rounded-3xl border border-gray-700 overflow-hidden flex flex-col shadow-2xl shadow-primary/10"
+                        className={`fixed bottom-6 left-6 z-50 w-[360px] sm:w-[400px] h-[600px] rounded-3xl overflow-hidden flex flex-col shadow-2xl shadow-primary/10 ${
+                            isLight 
+                                ? 'bg-white border border-gray-200' 
+                                : 'bg-dark-lighter border border-gray-700'
+                        }`}
                     >
                         <ChatHeader onClose={() => setIsOpen(false)} />
-                        <ChatMessages messages={messages} isTyping={isTyping} messagesEndRef={messagesEndRef} />
-                        <QuickActions actions={quickActions} onAction={handleSend} />
-                        <ChatInput input={input} setInput={setInput} onSend={() => handleSend()} />
+                        <ChatMessages messages={messages} isTyping={isTyping} messagesEndRef={messagesEndRef} isLight={isLight} />
+                        <QuickActions actions={quickActions} onAction={handleSend} isLight={isLight} />
+                        <ChatInput input={input} setInput={setInput} onSend={() => handleSend()} isLight={isLight} />
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -378,9 +387,9 @@ function ChatHeader({ onClose }) {
     )
 }
 
-function ChatMessages({ messages, isTyping, messagesEndRef }) {
+function ChatMessages({ messages, isTyping, messagesEndRef, isLight }) {
     return (
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-dark">
+        <div className={`flex-1 overflow-y-auto p-4 space-y-4 ${isLight ? 'bg-gray-50' : 'bg-dark'}`}>
             {messages.map((msg, index) => (
                 <motion.div
                     key={index}
@@ -390,15 +399,24 @@ function ChatMessages({ messages, isTyping, messagesEndRef }) {
                 >
                     <div className={`flex items-end gap-2 max-w-[90%] ${msg.type === 'user' ? 'flex-row' : 'flex-row-reverse'}`}>
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                            msg.type === 'user' ? 'bg-gray-700' : 'bg-gradient-to-r from-primary to-purple-600'
+                            msg.type === 'user' 
+                                ? isLight ? 'bg-gray-200' : 'bg-gray-700'
+                                : 'bg-gradient-to-r from-primary to-purple-600'
                         }`}>
-                            {msg.type === 'user' ? <User className="w-4 h-4 text-gray-300" /> : <Bot className="w-4 h-4 text-white" />}
+                            {msg.type === 'user' 
+                                ? <User className={`w-4 h-4 ${isLight ? 'text-gray-600' : 'text-gray-300'}`} /> 
+                                : <Bot className="w-4 h-4 text-white" />
+                            }
                         </div>
                         <div className="space-y-2">
                             <div className={`rounded-2xl px-4 py-3 ${
                                 msg.type === 'user' 
-                                    ? 'bg-gray-800 text-white rounded-br-sm' 
-                                    : 'bg-gradient-to-br from-gray-800 to-gray-900 text-gray-100 rounded-bl-sm border border-gray-700'
+                                    ? isLight 
+                                        ? 'bg-gray-200 text-gray-900 rounded-br-sm' 
+                                        : 'bg-gray-800 text-white rounded-br-sm'
+                                    : isLight
+                                        ? 'bg-white text-gray-800 rounded-bl-sm border border-gray-200 shadow-sm'
+                                        : 'bg-gradient-to-br from-gray-800 to-gray-900 text-gray-100 rounded-bl-sm border border-gray-700'
                             }`}>
                                 <p className="text-sm whitespace-pre-line leading-relaxed">{msg.text}</p>
                             </div>
@@ -410,10 +428,14 @@ function ChatMessages({ messages, isTyping, messagesEndRef }) {
                                         <Link 
                                             key={product.id} 
                                             href={`/products/${product.id}`}
-                                            className="flex-shrink-0 bg-gray-800 hover:bg-gray-700 rounded-xl p-2 border border-gray-700 transition-colors"
+                                            className={`flex-shrink-0 rounded-xl p-2 transition-colors ${
+                                                isLight 
+                                                    ? 'bg-white hover:bg-gray-100 border border-gray-200' 
+                                                    : 'bg-gray-800 hover:bg-gray-700 border border-gray-700'
+                                            }`}
                                         >
                                             <div className="text-2xl text-center mb-1">{product.emoji}</div>
-                                            <div className="text-xs text-gray-300 w-20 truncate text-center">{product.name.split(' ').slice(0, 2).join(' ')}</div>
+                                            <div className={`text-xs w-20 truncate text-center ${isLight ? 'text-gray-600' : 'text-gray-300'}`}>{product.name.split(' ').slice(0, 2).join(' ')}</div>
                                             <div className="text-xs text-primary font-bold text-center">{product.price} ج.م</div>
                                         </Link>
                                     ))}
@@ -430,7 +452,9 @@ function ChatMessages({ messages, isTyping, messagesEndRef }) {
                         <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary to-purple-600 flex items-center justify-center">
                             <Bot className="w-4 h-4 text-white" />
                         </div>
-                        <div className="bg-gray-800 rounded-2xl px-4 py-3 border border-gray-700">
+                        <div className={`rounded-2xl px-4 py-3 ${
+                            isLight ? 'bg-white border border-gray-200' : 'bg-gray-800 border border-gray-700'
+                        }`}>
                             <div className="flex gap-1.5">
                                 <span className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                                 <span className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -445,10 +469,10 @@ function ChatMessages({ messages, isTyping, messagesEndRef }) {
     )
 }
 
-function QuickActions({ actions, onAction }) {
+function QuickActions({ actions, onAction, isLight }) {
     return (
-        <div className="px-4 py-3 border-t border-gray-800 bg-dark-lighter">
-            <p className="text-xs text-gray-500 mb-2">اختصارات سريعة:</p>
+        <div className={`px-4 py-3 border-t ${isLight ? 'border-gray-200 bg-white' : 'border-gray-800 bg-dark-lighter'}`}>
+            <p className={`text-xs mb-2 ${isLight ? 'text-gray-500' : 'text-gray-500'}`}>اختصارات سريعة:</p>
             <div className="flex gap-2 overflow-x-auto pb-1">
                 {actions.map((action, index) => (
                     <motion.button
@@ -456,7 +480,11 @@ function QuickActions({ actions, onAction }) {
                         onClick={() => onAction(action.action)}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        className="flex items-center gap-1.5 px-3 py-2 bg-gray-800 hover:bg-primary/20 rounded-xl text-xs text-gray-300 hover:text-white whitespace-nowrap transition-all border border-gray-700 hover:border-primary/50"
+                        className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs whitespace-nowrap transition-all ${
+                            isLight 
+                                ? 'bg-gray-100 hover:bg-primary/10 text-gray-600 hover:text-primary border border-gray-200 hover:border-primary/30' 
+                                : 'bg-gray-800 hover:bg-primary/20 text-gray-300 hover:text-white border border-gray-700 hover:border-primary/50'
+                        }`}
                     >
                         <action.icon className="w-3.5 h-3.5" />
                         {action.text}
@@ -467,7 +495,7 @@ function QuickActions({ actions, onAction }) {
     )
 }
 
-function ChatInput({ input, setInput, onSend }) {
+function ChatInput({ input, setInput, onSend, isLight }) {
     const handleKeyPress = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault()
@@ -476,7 +504,7 @@ function ChatInput({ input, setInput, onSend }) {
     }
 
     return (
-        <div className="p-4 border-t border-gray-800 bg-dark-lighter">
+        <div className={`p-4 border-t ${isLight ? 'border-gray-200 bg-white' : 'border-gray-800 bg-dark-lighter'}`}>
             <div className="flex items-center gap-2">
                 <input
                     type="text"
@@ -484,7 +512,11 @@ function ChatInput({ input, setInput, onSend }) {
                     onChange={(e) => setInput(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="اكتب رسالتك هنا... 💬"
-                    className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all text-sm"
+                    className={`flex-1 px-4 py-3 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all text-sm ${
+                        isLight 
+                            ? 'bg-gray-100 border border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary focus:bg-white' 
+                            : 'bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:border-primary'
+                    }`}
                 />
                 <motion.button
                     onClick={onSend}

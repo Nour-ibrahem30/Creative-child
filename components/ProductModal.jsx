@@ -3,11 +3,14 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Star, Heart, ShoppingCart, Truck, Shield, RotateCcw, Minus, Plus, Check, Sparkles } from 'lucide-react'
 import { useCartStore } from '@/store/cartStore'
+import { useThemeStore } from '@/store/themeStore'
 import toast from 'react-hot-toast'
 
 export default function ProductModal({ product, onClose }) {
     const [quantity, setQuantity] = useState(1)
     const addToCart = useCartStore((state) => state.addItem)
+    const { theme } = useThemeStore()
+    const isLight = theme === 'light'
 
     if (!product) return null
 
@@ -29,7 +32,6 @@ export default function ProductModal({ product, onClose }) {
         <AnimatePresence>
             {product && (
                 <>
-                    {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -38,24 +40,33 @@ export default function ProductModal({ product, onClose }) {
                         className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
                     />
 
-                    {/* Modal */}
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
                         className="fixed inset-4 md:inset-10 lg:inset-20 z-50 overflow-hidden"
                     >
-                        <div className="h-full glass-card rounded-3xl border border-gray-700 overflow-hidden flex flex-col lg:flex-row">
-                            {/* Close Button */}
+                        <div className={`h-full rounded-3xl overflow-hidden flex flex-col lg:flex-row ${
+                            isLight 
+                                ? 'bg-white border border-gray-200 shadow-2xl' 
+                                : 'glass-card border border-gray-700'
+                        }`}>
                             <button
                                 onClick={onClose}
-                                className="absolute top-4 left-4 z-10 w-10 h-10 glass-effect rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-red-500/20 transition-colors"
+                                className={`absolute top-4 left-4 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+                                    isLight 
+                                        ? 'bg-gray-100 text-gray-500 hover:text-gray-900 hover:bg-red-100' 
+                                        : 'glass-effect text-gray-400 hover:text-white hover:bg-red-500/20'
+                                }`}
                             >
                                 <X className="w-5 h-5" />
                             </button>
 
-                            {/* Image Section */}
-                            <div className="lg:w-1/2 bg-gradient-to-br from-dark-lighter to-dark p-8 flex items-center justify-center relative overflow-hidden">
+                            <div className={`lg:w-1/2 p-8 flex items-center justify-center relative overflow-hidden ${
+                                isLight 
+                                    ? 'bg-gradient-to-br from-gray-50 to-gray-100' 
+                                    : 'bg-gradient-to-br from-dark-lighter to-dark'
+                            }`}>
                                 <div className="absolute inset-0 mesh-bg opacity-30" />
                                 <motion.div
                                     animate={{ y: [0, -15, 0] }}
@@ -66,7 +77,6 @@ export default function ProductModal({ product, onClose }) {
                                     {product.emoji}
                                 </motion.div>
                                 
-                                {/* Badges */}
                                 <div className="absolute top-4 right-4 flex flex-col gap-2">
                                     {product.isNew && (
                                         <span className="bg-gradient-to-r from-secondary to-cyan-400 text-white text-sm font-bold px-4 py-1.5 rounded-full shadow-glow-secondary">
@@ -81,13 +91,12 @@ export default function ProductModal({ product, onClose }) {
                                 </div>
                             </div>
 
-                            {/* Content Section */}
                             <div className="lg:w-1/2 p-6 md:p-8 overflow-y-auto">
-                                <ProductInfo product={product} />
-                                <ProductBenefits benefits={product.benefits} />
-                                <QuantitySelector quantity={quantity} setQuantity={setQuantity} />
-                                <ActionButtons handleAddToCart={handleAddToCart} />
-                                <ProductFeatures features={features} />
+                                <ProductInfo product={product} isLight={isLight} />
+                                <ProductBenefits benefits={product.benefits} isLight={isLight} />
+                                <QuantitySelector quantity={quantity} setQuantity={setQuantity} isLight={isLight} />
+                                <ActionButtons handleAddToCart={handleAddToCart} isLight={isLight} />
+                                <ProductFeatures features={features} isLight={isLight} />
                             </div>
                         </div>
                     </motion.div>
@@ -97,55 +106,52 @@ export default function ProductModal({ product, onClose }) {
     )
 }
 
-
-function ProductInfo({ product }) {
+function ProductInfo({ product, isLight }) {
     return (
         <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
                 <span className="text-secondary font-medium">{product.category}</span>
-                <span className="text-gray-600">•</span>
-                <span className="text-gray-500 text-sm">{product.ageRange}</span>
+                <span className={isLight ? 'text-gray-400' : 'text-gray-600'}>•</span>
+                <span className={`text-sm ${isLight ? 'text-gray-500' : 'text-gray-500'}`}>{product.ageRange}</span>
             </div>
             
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">{product.name}</h2>
+            <h2 className={`text-2xl md:text-3xl font-bold mb-4 ${isLight ? 'text-gray-900' : 'text-white'}`}>{product.name}</h2>
 
-            {/* Rating */}
             <div className="flex items-center gap-3 mb-4">
                 <div className="flex">
                     {[...Array(5)].map((_, i) => (
                         <Star
                             key={i}
-                            className={`w-5 h-5 ${i < product.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-600'}`}
+                            className={`w-5 h-5 ${i < product.rating ? 'text-amber-400 fill-amber-400' : isLight ? 'text-gray-300' : 'text-gray-600'}`}
                         />
                     ))}
                 </div>
-                <span className="text-gray-400">({product.reviews} تقييم)</span>
+                <span className={isLight ? 'text-gray-500' : 'text-gray-400'}>({product.reviews} تقييم)</span>
             </div>
 
-            {/* Price */}
             <div className="flex items-center gap-4 mb-4">
                 <span className="text-4xl font-bold gradient-text">{product.price} ج.م</span>
                 {product.oldPrice && (
                     <>
-                        <span className="text-xl text-gray-500 line-through">{product.oldPrice} ج.م</span>
-                        <span className="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-sm font-bold border border-red-500/30">
+                        <span className={`text-xl line-through ${isLight ? 'text-gray-400' : 'text-gray-500'}`}>{product.oldPrice} ج.م</span>
+                        <span className="bg-red-500/20 text-red-500 px-3 py-1 rounded-full text-sm font-bold border border-red-500/30">
                             وفر {product.oldPrice - product.price} ج.م
                         </span>
                     </>
                 )}
             </div>
 
-            <p className="text-gray-400 leading-relaxed">{product.description}</p>
+            <p className={`leading-relaxed ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>{product.description}</p>
         </div>
     )
 }
 
-function ProductBenefits({ benefits }) {
+function ProductBenefits({ benefits, isLight }) {
     if (!benefits || benefits.length === 0) return null
     
     return (
         <div className="mb-6">
-            <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+            <h3 className={`text-lg font-bold mb-3 flex items-center gap-2 ${isLight ? 'text-gray-900' : 'text-white'}`}>
                 <Sparkles className="w-5 h-5 text-primary" />
                 فوائد هذا المنتج
             </h3>
@@ -156,7 +162,7 @@ function ProductBenefits({ benefits }) {
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
-                        className="flex items-center gap-2 text-gray-300"
+                        className={`flex items-center gap-2 ${isLight ? 'text-gray-600' : 'text-gray-300'}`}
                     >
                         <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center">
                             <Check className="w-3 h-3 text-primary" />
@@ -169,21 +175,29 @@ function ProductBenefits({ benefits }) {
     )
 }
 
-function QuantitySelector({ quantity, setQuantity }) {
+function QuantitySelector({ quantity, setQuantity, isLight }) {
     return (
         <div className="flex items-center gap-4 mb-6">
-            <span className="font-medium text-gray-300">الكمية:</span>
-            <div className="flex items-center glass-effect rounded-full border border-gray-700">
+            <span className={`font-medium ${isLight ? 'text-gray-700' : 'text-gray-300'}`}>الكمية:</span>
+            <div className={`flex items-center rounded-full ${
+                isLight 
+                    ? 'bg-gray-100 border border-gray-200' 
+                    : 'glass-effect border border-gray-700'
+            }`}>
                 <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-10 h-10 flex items-center justify-center hover:bg-gray-700 rounded-full transition-colors text-gray-400"
+                    className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
+                        isLight ? 'hover:bg-gray-200 text-gray-500' : 'hover:bg-gray-700 text-gray-400'
+                    }`}
                 >
                     <Minus className="w-4 h-4" />
                 </button>
-                <span className="w-12 text-center font-bold text-white">{quantity}</span>
+                <span className={`w-12 text-center font-bold ${isLight ? 'text-gray-900' : 'text-white'}`}>{quantity}</span>
                 <button
                     onClick={() => setQuantity(quantity + 1)}
-                    className="w-10 h-10 flex items-center justify-center hover:bg-gray-700 rounded-full transition-colors text-gray-400"
+                    className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
+                        isLight ? 'hover:bg-gray-200 text-gray-500' : 'hover:bg-gray-700 text-gray-400'
+                    }`}
                 >
                     <Plus className="w-4 h-4" />
                 </button>
@@ -192,7 +206,7 @@ function QuantitySelector({ quantity, setQuantity }) {
     )
 }
 
-function ActionButtons({ handleAddToCart }) {
+function ActionButtons({ handleAddToCart, isLight }) {
     return (
         <div className="flex gap-4 mb-6">
             <motion.button
@@ -207,7 +221,11 @@ function ActionButtons({ handleAddToCart }) {
             <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="w-14 h-14 glass-effect border border-gray-700 rounded-full flex items-center justify-center hover:border-red-500 hover:text-red-500 transition-colors text-gray-400"
+                className={`w-14 h-14 rounded-full flex items-center justify-center transition-colors ${
+                    isLight 
+                        ? 'bg-gray-100 border border-gray-200 text-gray-400 hover:border-red-500 hover:text-red-500' 
+                        : 'glass-effect border border-gray-700 text-gray-400 hover:border-red-500 hover:text-red-500'
+                }`}
             >
                 <Heart className="w-6 h-6" />
             </motion.button>
@@ -215,15 +233,17 @@ function ActionButtons({ handleAddToCart }) {
     )
 }
 
-function ProductFeatures({ features }) {
+function ProductFeatures({ features, isLight }) {
     return (
-        <div className="space-y-3 pt-4 border-t border-gray-800">
+        <div className={`space-y-3 pt-4 border-t ${isLight ? 'border-gray-200' : 'border-gray-800'}`}>
             {features.map((feature, index) => (
                 <div key={index} className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        isLight ? 'bg-gray-100' : 'bg-gray-800'
+                    }`}>
                         <feature.icon className={`w-4 h-4 ${feature.color}`} />
                     </div>
-                    <span className="text-gray-400 text-sm">{feature.text}</span>
+                    <span className={`text-sm ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>{feature.text}</span>
                 </div>
             ))}
         </div>

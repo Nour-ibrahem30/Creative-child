@@ -5,16 +5,29 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Mail, Lock, Eye, EyeOff, Package, Sparkles } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { useAuthStore } from '@/store/authStore'
 
 export default function LoginPage() {
     const router = useRouter()
+    const { login } = useAuthStore()
     const [showPassword, setShowPassword] = useState(false)
+    const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState({ email: '', password: '' })
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
-        toast.success('تم تسجيل الدخول بنجاح!')
-        router.push('/')
+        setLoading(true)
+        
+        const result = login(formData.email, formData.password)
+        
+        if (result.success) {
+            toast.success('تم تسجيل الدخول بنجاح!')
+            router.push('/dashboard')
+        } else {
+            toast.error(result.error)
+        }
+        
+        setLoading(false)
     }
 
     return (
@@ -40,7 +53,7 @@ export default function LoginPage() {
                 <div className="glass-card rounded-3xl p-8 border border-gray-800">
                     <div className="text-center mb-8">
                         <h1 className="text-2xl font-bold text-white mb-2">مرحباً بعودتك! 👋</h1>
-                        <p className="text-gray-400">سجل دخولك للمتابعة</p>
+                        <p className="text-gray-400">سجل دخولك للوصول للوحة التحكم</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
@@ -55,6 +68,7 @@ export default function LoginPage() {
                                     required
                                     className="w-full pr-12 pl-4 py-3 glass-effect border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-primary focus:outline-none transition-colors"
                                     placeholder="example@email.com"
+                                    dir="ltr"
                                 />
                             </div>
                         </div>
@@ -70,6 +84,7 @@ export default function LoginPage() {
                                     required
                                     className="w-full pr-12 pl-12 py-3 glass-effect border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-primary focus:outline-none transition-colors"
                                     placeholder="••••••••"
+                                    dir="ltr"
                                 />
                                 <button
                                     type="button"
@@ -86,25 +101,22 @@ export default function LoginPage() {
                                 <input type="checkbox" className="accent-primary w-4 h-4" />
                                 <span className="text-sm text-gray-400">تذكرني</span>
                             </label>
-                            <Link href="/auth/forgot-password" className="text-sm text-primary hover:text-secondary transition-colors">
-                                نسيت كلمة المرور؟
-                            </Link>
                         </div>
 
                         <motion.button 
                             type="submit" 
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            className="btn-primary w-full py-3 shadow-glow-primary"
+                            disabled={loading}
+                            className="btn-primary w-full py-3 shadow-glow-primary disabled:opacity-50"
                         >
-                            تسجيل الدخول
+                            {loading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
                         </motion.button>
                     </form>
 
                     <div className="mt-6 text-center">
-                        <span className="text-gray-500">ليس لديك حساب؟ </span>
-                        <Link href="/auth/register" className="text-primary font-medium hover:text-secondary transition-colors">
-                            سجل الآن
+                        <Link href="/" className="text-primary font-medium hover:text-secondary transition-colors">
+                            العودة للرئيسية
                         </Link>
                     </div>
                 </div>
