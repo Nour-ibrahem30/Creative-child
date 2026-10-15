@@ -1,11 +1,15 @@
+'use client'
 import Link from "next/link";
 import { Baby, Blocks, CarFront, Rocket } from "lucide-react";
+import { motion } from "framer-motion";
+
 const ages = [
   { value: "0-2", label: "٠ – ٢ سنة", Icon: Baby },
   { value: "3-5", label: "٣ – ٥ سنوات", Icon: Blocks },
   { value: "6-8", label: "٦ – ٨ سنوات", Icon: CarFront },
   { value: "9", label: "٩+ سنوات", Icon: Rocket },
 ];
+
 export default function Categories() {
   return (
     <section
@@ -13,21 +17,41 @@ export default function Categories() {
       id="ages"
       aria-labelledby="age-heading"
     >
-      <h2 id="age-heading">
+      <motion.h2 
+        id="age-heading"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+      >
         لكل مرحلة،{" "}
         <br />
         لعبة تحكي حكايتها
         <span className="cc-short-line" />
-      </h2>
+      </motion.h2>
       <div className="cc-age-options">
-        {ages.map(({ value, label, Icon }) => (
-          <Link className="cc-age" key={value} href={"/products?age=" + value}>
-            <Icon size={44} strokeWidth={1.4} />
-            <span>{label}</span>
-            <span className="cc-age-arrow" aria-hidden="true">
-              ←
-            </span>
-          </Link>
+        {ages.map(({ value, label, Icon }, index) => (
+          <motion.div
+            key={value}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: index * 0.1 }}
+            whileHover={{ y: -8, transition: { duration: 0.2 } }}
+          >
+            <Link className="cc-age" href={"/products?age=" + value}>
+              <motion.div
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <Icon size={44} strokeWidth={1.4} />
+              </motion.div>
+              <span>{label}</span>
+              <span className="cc-age-arrow" aria-hidden="true">
+                ←
+              </span>
+            </Link>
+          </motion.div>
         ))}
       </div>
     </section>
