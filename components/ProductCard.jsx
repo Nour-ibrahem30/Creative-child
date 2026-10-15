@@ -1,132 +1,71 @@
-'use client'
-import { motion } from 'framer-motion'
-import Link from 'next/link'
-import { Heart, ShoppingCart, Star, Eye } from 'lucide-react'
-import { useCartStore } from '@/store/cartStore'
-import { useThemeStore } from '@/store/themeStore'
-import toast from 'react-hot-toast'
-
-export default function ProductCard({ product, index = 0 }) {
-    const addToCart = useCartStore((state) => state.addItem)
-    const { theme } = useThemeStore()
-    const isLight = theme === 'light'
-
-    const handleAddToCart = (e) => {
-        e.preventDefault()
-        addToCart(product)
-        toast.success('تمت الإضافة إلى السلة')
-    }
-
-    return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            viewport={{ once: true }}
-            className="group"
+"use client";
+import Link from "next/link";
+import { Heart, Plus, Check } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useCartStore } from "@/store/cartStore";
+import { useWishlistStore } from "@/store/wishlistStore";
+import ProductVisual from "./ProductVisual";
+import toast from "react-hot-toast";
+export default function ProductCard({ product }) {
+  const add = useCartStore((s) => s.addItem),
+    { items, toggle } = useWishlistStore();
+  const [added, setAdded] = useState(false),
+    [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
+  const saved = ready && items.some((p) => p.id === product.id);
+  function addItem() {
+    add(product);
+    setAdded(true);
+    toast.success("تمت الإضافة إلى السلة");
+    setTimeout(() => setAdded(false), 1500);
+  }
+  return (
+    <article className="cc-product-card">
+      <Link className="cc-product-image-link" href={"/products/" + product.id}>
+        <ProductVisual product={product} />
+      </Link>
+      <button
+        className={"cc-favorite " + (saved ? "is-saved" : "")}
+        aria-label={
+          (saved ? "حذف " : "حفظ ") +
+          product.name +
+          (saved ? " من المفضلة" : " في المفضلة")
+        }
+        aria-pressed={saved}
+        onClick={() => toggle(product)}
+      >
+        <Heart size={20} fill={saved ? "currentColor" : "none"} />
+      </button>
+      {product.discount > 0 && (
+        <span className="cc-discount">
+          خصم {product.discount.toLocaleString("ar-EG")}٪
+        </span>
+      )}
+      <div className="cc-product-info">
+        <div>
+          {product.ageRange && (
+            <span className="cc-age-tag">{product.ageRange}</span>
+          )}
+          <Link href={"/products/" + product.id} className="cc-product-name">
+            {product.name.replace(" - 100 قطعة", "").replace(" - ", " ")}
+          </Link>
+          <div className="cc-price">
+            <strong>
+              {product.price.toLocaleString("ar-EG")} <small>ج.م</small>
+            </strong>
+            {product.oldPrice > product.price && (
+              <del>{product.oldPrice.toLocaleString("ar-EG")} ج.م</del>
+            )}
+          </div>
+        </div>
+        <button
+          className="cc-add"
+          onClick={addItem}
+          aria-label={"إضافة " + product.name + " للسلة"}
         >
-            <Link href={`/products/${product.id}`}>
-                <div className={`rounded-3xl overflow-hidden card-hover transition-all duration-300 ${
-                    isLight 
-                        ? 'bg-white border border-gray-200 shadow-md hover:shadow-xl hover:border-primary/30' 
-                        : 'bg-gray-800/50 border border-gray-700 hover:border-primary/50'
-                }`}>
-                    {/* Image Container */}
-                    <div className={`relative aspect-square overflow-hidden ${
-                        isLight 
-                            ? 'bg-gradient-to-br from-gray-100 to-gray-50' 
-                            : 'bg-gradient-to-br from-gray-800 to-gray-900'
-                    }`}>
-                        <div className="absolute inset-0 flex items-center justify-center text-8xl group-hover:scale-110 transition-transform duration-500">
-                            {product.image ? (
-                                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-                            ) : (
-                                product.emoji || '🧸'
-                            )}
-                        </div>
-
-                        {/* Badges */}
-                        <div className="absolute top-4 right-4 flex flex-col gap-2">
-                            {product.isNew && (
-                                <span className="bg-gradient-to-r from-secondary to-cyan-400 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                                    جديد
-                                </span>
-                            )}
-                            {product.discount > 0 && (
-                                <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                                    -{product.discount}%
-                                </span>
-                            )}
-                        </div>
-
-                        {/* Quick Actions */}
-                        <div className="absolute top-4 left-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-md ${
-                                    isLight 
-                                        ? 'bg-white border border-gray-200 text-gray-600 hover:bg-primary hover:text-white hover:border-primary' 
-                                        : 'bg-gray-800 border border-gray-700 text-gray-300 hover:bg-primary hover:text-white'
-                                }`}
-                            >
-                                <Heart className="w-5 h-5" />
-                            </motion.button>
-                            <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-md ${
-                                    isLight 
-                                        ? 'bg-white border border-gray-200 text-gray-600 hover:bg-primary hover:text-white hover:border-primary' 
-                                        : 'bg-gray-800 border border-gray-700 text-gray-300 hover:bg-primary hover:text-white'
-                                }`}
-                            >
-                                <Eye className="w-5 h-5" />
-                            </motion.button>
-                        </div>
-
-                        {/* Add to Cart Button */}
-                        <motion.button
-                            initial={{ y: 100 }}
-                            whileHover={{ scale: 1.02 }}
-                            onClick={handleAddToCart}
-                            className="absolute bottom-4 left-4 right-4 bg-gradient-to-r from-primary to-purple-500 text-white py-3 rounded-full font-semibold opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all flex items-center justify-center gap-2 shadow-lg"
-                        >
-                            <ShoppingCart className="w-5 h-5" />
-                            أضف للسلة
-                        </motion.button>
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-5">
-                        <span className="text-xs text-secondary font-medium">{product.category}</span>
-                        <h3 className={`font-bold mt-1 mb-2 line-clamp-2 group-hover:text-primary transition-colors ${
-                            isLight ? 'text-gray-900' : 'text-white'
-                        }`}>
-                            {product.name}
-                        </h3>
-
-                        {/* Rating */}
-                        <div className="flex items-center gap-1 mb-3">
-                            {[...Array(5)].map((_, i) => (
-                                <Star
-                                    key={i}
-                                    className={`w-4 h-4 ${i < product.rating ? 'text-accent fill-accent' : isLight ? 'text-gray-300' : 'text-gray-600'}`}
-                                />
-                            ))}
-                            <span className="text-xs text-gray-500 mr-1">({product.reviews})</span>
-                        </div>
-
-                        {/* Price */}
-                        <div className="flex items-center gap-2">
-                            <span className="text-xl font-bold gradient-text">{product.price} ج.م</span>
-                            {product.oldPrice && (
-                                <span className="text-sm text-gray-400 line-through">{product.oldPrice} ج.م</span>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </Link>
-        </motion.div>
-    )
+          {added ? <Check size={22} /> : <Plus size={24} />}
+        </button>
+      </div>
+    </article>
+  );
 }

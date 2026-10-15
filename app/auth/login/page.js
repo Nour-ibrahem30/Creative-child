@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Mail, Lock, Eye, EyeOff, Package, Sparkles } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, Sparkles, Star } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuthStore } from '@/store/authStore'
 
@@ -31,94 +31,184 @@ export default function LoginPage() {
     }
 
     return (
-        <main className="min-h-screen bg-dark flex items-center justify-center p-4 relative overflow-hidden">
-            {/* Background Effects */}
-            <div className="absolute inset-0 mesh-bg opacity-50" />
-            <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
-            <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-secondary/20 rounded-full blur-3xl" />
+        <main className="auth-page">
+            {/* Decorative Elements */}
+            <div className="auth-decoration">
+                <motion.div 
+                    className="auth-circle auth-circle-1"
+                    animate={{ 
+                        scale: [1, 1.2, 1],
+                        rotate: [0, 180, 360]
+                    }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                />
+                <motion.div 
+                    className="auth-circle auth-circle-2"
+                    animate={{ 
+                        scale: [1.2, 1, 1.2],
+                        rotate: [360, 180, 0]
+                    }}
+                    transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                />
+                <motion.div 
+                    className="auth-circle auth-circle-3"
+                    animate={{ y: [0, -20, 0] }}
+                    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                />
+            </div>
 
             <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-md relative z-10"
+                transition={{ duration: 0.6 }}
+                className="auth-container"
             >
-                {/* Logo */}
-                <Link href="/" className="flex items-center justify-center gap-3 mb-8">
-                    <div className="w-14 h-14 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center shadow-glow-primary">
-                        <Package className="w-7 h-7 text-white" />
+                {/* Enhanced Logo */}
+                <Link href="/" className="auth-logo">
+                    <motion.div 
+                        className="auth-logo-icon"
+                        whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <span className="logo-emoji">🧸</span>
+                        <motion.span 
+                            className="logo-sparkle logo-sparkle-1"
+                            animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                        >
+                            ✨
+                        </motion.span>
+                        <motion.span 
+                            className="logo-sparkle logo-sparkle-2"
+                            animate={{ scale: [1, 1.3, 1], opacity: [0.5, 1, 0.5] }}
+                            transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }}
+                        >
+                            ⭐
+                        </motion.span>
+                    </motion.div>
+                    <div className="auth-logo-text">
+                        <span className="auth-logo-title">الطفل المبدع</span>
+                        <span className="auth-logo-subtitle">عالم من الخيال والإبداع</span>
                     </div>
-                    <span className="text-3xl font-bold gradient-text">الطفل المبدع</span>
                 </Link>
 
-                <div className="glass-card rounded-3xl p-8 border border-gray-800">
-                    <div className="text-center mb-8">
-                        <h1 className="text-2xl font-bold text-white mb-2">مرحباً بعودتك! 👋</h1>
-                        <p className="text-gray-400">سجل دخولك للوصول للوحة التحكم</p>
+                {/* Login Card */}
+                <motion.div 
+                    className="auth-card"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2, duration: 0.5 }}
+                >
+                    <div className="auth-card-header">
+                        <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+                            className="auth-welcome-icon"
+                        >
+                            👋
+                        </motion.div>
+                        <h1>مرحباً بعودتك!</h1>
+                        <p>سجل دخولك للوصول للوحة التحكم</p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">البريد الإلكتروني</label>
-                            <div className="relative">
-                                <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                    <form onSubmit={handleSubmit} className="auth-form">
+                        <div className="auth-field">
+                            <label>البريد الإلكتروني</label>
+                            <div className="auth-input-wrapper">
+                                <Mail className="auth-input-icon" size={20} />
                                 <input
                                     type="email"
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     required
-                                    className="w-full pr-12 pl-4 py-3 glass-effect border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-primary focus:outline-none transition-colors"
                                     placeholder="example@email.com"
                                     dir="ltr"
                                 />
                             </div>
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">كلمة المرور</label>
-                            <div className="relative">
-                                <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                        <div className="auth-field">
+                            <label>كلمة المرور</label>
+                            <div className="auth-input-wrapper">
+                                <Lock className="auth-input-icon" size={20} />
                                 <input
                                     type={showPassword ? 'text' : 'password'}
                                     value={formData.password}
                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                     required
-                                    className="w-full pr-12 pl-12 py-3 glass-effect border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-primary focus:outline-none transition-colors"
                                     placeholder="••••••••"
                                     dir="ltr"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                                    className="auth-toggle-password"
                                 >
-                                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                                 </button>
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" className="accent-primary w-4 h-4" />
-                                <span className="text-sm text-gray-400">تذكرني</span>
+                        <div className="auth-options">
+                            <label className="auth-checkbox">
+                                <input type="checkbox" />
+                                <span className="checkmark"></span>
+                                <span>تذكرني</span>
                             </label>
                         </div>
 
                         <motion.button 
                             type="submit" 
-                            whileHover={{ scale: 1.02 }}
+                            className="auth-submit"
+                            whileHover={{ scale: 1.02, boxShadow: "0 10px 30px rgba(33, 78, 61, 0.3)" }}
                             whileTap={{ scale: 0.98 }}
                             disabled={loading}
-                            className="btn-primary w-full py-3 shadow-glow-primary disabled:opacity-50"
                         >
-                            {loading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
+                            {loading ? (
+                                <span className="auth-loading">
+                                    <span className="auth-spinner"></span>
+                                    جاري تسجيل الدخول...
+                                </span>
+                            ) : (
+                                <>
+                                    <Sparkles size={20} />
+                                    تسجيل الدخول
+                                </>
+                            )}
                         </motion.button>
                     </form>
 
-                    <div className="mt-6 text-center">
-                        <Link href="/" className="text-primary font-medium hover:text-secondary transition-colors">
-                            العودة للرئيسية
+                    <div className="auth-footer">
+                        <Link href="/" className="auth-back-link">
+                            ← العودة للرئيسية
                         </Link>
                     </div>
+                </motion.div>
+
+                {/* Fun decorative toys */}
+                <div className="auth-toys">
+                    <motion.span 
+                        className="auth-toy auth-toy-1"
+                        animate={{ y: [0, -10, 0], rotate: [0, 10, 0] }}
+                        transition={{ duration: 3, repeat: Infinity }}
+                    >
+                        🎨
+                    </motion.span>
+                    <motion.span 
+                        className="auth-toy auth-toy-2"
+                        animate={{ y: [0, -15, 0], rotate: [0, -15, 0] }}
+                        transition={{ duration: 4, repeat: Infinity, delay: 0.5 }}
+                    >
+                        🧩
+                    </motion.span>
+                    <motion.span 
+                        className="auth-toy auth-toy-3"
+                        animate={{ y: [0, -8, 0], rotate: [0, 20, 0] }}
+                        transition={{ duration: 2.5, repeat: Infinity, delay: 1 }}
+                    >
+                        🎯
+                    </motion.span>
                 </div>
             </motion.div>
         </main>

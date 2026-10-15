@@ -310,13 +310,13 @@ export default function Chatbot() {
         <>
             {/* زر فتح الشات */}
             <motion.button
-                onClick={() => setIsOpen(true)}
-                className={`fixed bottom-6 left-6 z-50 ${isOpen ? 'hidden' : 'flex'}`}
+                aria-label="فتح مساعد المتجر" onClick={() => setIsOpen(true)}
+                className={`fixed bottom-4 left-4 z-50 ${isOpen ? 'hidden' : 'flex'}`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
             >
                 <div className="relative">
-                    <div className="w-16 h-16 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center shadow-lg shadow-primary/30">
+                    <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center shadow-lg shadow-primary/30">
                         <MessageCircle className="w-7 h-7 text-white" />
                     </div>
                     <span className={`absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 flex items-center justify-center ${isLight ? 'border-white' : 'border-dark'}`}>
@@ -342,7 +342,7 @@ export default function Chatbot() {
                         initial={{ opacity: 0, y: 20, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                        className={`fixed bottom-6 left-6 z-50 w-[360px] sm:w-[400px] h-[600px] rounded-3xl overflow-hidden flex flex-col shadow-2xl shadow-primary/10 ${
+                        className={`fixed bottom-4 left-4 z-50 w-[calc(100vw-32px)] sm:w-[400px] h-[min(600px,80dvh)] rounded-3xl overflow-hidden flex flex-col shadow-2xl shadow-primary/10 ${
                             isLight 
                                 ? 'bg-white border border-gray-200' 
                                 : 'bg-dark-lighter border border-gray-700'
@@ -362,7 +362,7 @@ export default function Chatbot() {
 
 function ChatHeader({ onClose }) {
     return (
-        <div className="bg-gradient-to-r from-primary to-purple-600 p-4">
+        <div className="bg-primary p-4">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
@@ -401,7 +401,7 @@ function ChatMessages({ messages, isTyping, messagesEndRef, isLight }) {
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                             msg.type === 'user' 
                                 ? isLight ? 'bg-gray-200' : 'bg-gray-700'
-                                : 'bg-gradient-to-r from-primary to-purple-600'
+                                : 'bg-primary'
                         }`}>
                             {msg.type === 'user' 
                                 ? <User className={`w-4 h-4 ${isLight ? 'text-gray-600' : 'text-gray-300'}`} /> 
@@ -449,7 +449,7 @@ function ChatMessages({ messages, isTyping, messagesEndRef, isLight }) {
             {isTyping && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-end">
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary to-purple-600 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
                             <Bot className="w-4 h-4 text-white" />
                         </div>
                         <div className={`rounded-2xl px-4 py-3 ${
@@ -523,7 +523,7 @@ function ChatInput({ input, setInput, onSend, isLight }) {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     disabled={!input.trim()}
-                    className="w-12 h-12 bg-gradient-to-r from-primary to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+                    className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
                 >
                     <Send className="w-5 h-5 text-white" />
                 </motion.button>
@@ -531,3 +531,4 @@ function ChatInput({ input, setInput, onSend, isLight }) {
         </div>
     )
 }
+

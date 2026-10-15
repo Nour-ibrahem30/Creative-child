@@ -10,6 +10,7 @@
 
 # production
 /build
+/.next-preview/
 
 # misc
 .DS_Store

@@ -32,6 +32,18 @@ export const useAuthStore = create(
             
             checkAuth: () => {
                 return get().isAuthenticated
+            },
+            
+            updateUser: (userData) => {
+                const currentUser = get().user
+                if (currentUser) {
+                    set({ 
+                        user: { 
+                            ...currentUser, 
+                            ...userData 
+                        } 
+                    })
+                }
             }
         }),
         { name: 'auth-storage' }

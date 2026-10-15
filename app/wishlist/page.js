@@ -1,53 +1,91 @@
 'use client'
-import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import { Heart, ShoppingBag } from 'lucide-react'
+import ProductCard from '@/components/ProductCard'
+import { useWishlistStore } from '@/store/wishlistStore'
+import { Heart } from 'lucide-react'
 
 export default function WishlistPage() {
-    // In a real app, this would come from a store or API
-    const wishlistItems = []
+  const items = useWishlistStore((s) => s.items)
+  const [ready, setReady] = useState(false)
 
-    return (
-        <main className="min-h-screen bg-gray-50">
-            <Navbar />
+  useEffect(() => setReady(true), [])
 
-            <div className="pt-24 pb-20">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <motion.h1
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-3xl font-bold text-dark mb-8"
-                    >
-                        قائمة الأمنيات
-                    </motion.h1>
+  return (
+    <main>
+      <Navbar />
+      <div className="cc-container cc-catalog">
+        <motion.div
+          className="cc-page-heading"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <p className="cc-eyebrow">لوقت اللعب الجاي</p>
+          <h1>ألعاب عجبتك</h1>
+          <p>كل اختياراتك المفضلة، في مكان واحد.</p>
+        </motion.div>
 
-                    {wishlistItems.length === 0 ? (
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="text-center py-20 bg-white rounded-3xl shadow-lg"
-                        >
-                            <div className="w-24 h-24 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <Heart className="w-12 h-12 text-primary" />
-                            </div>
-                            <h2 className="text-2xl font-bold text-dark mb-4">قائمة الأمنيات فارغة</h2>
-                            <p className="text-gray-600 mb-8">لم تقم بإضافة أي منتجات إلى قائمة الأمنيات بعد</p>
-                            <Link href="/products" className="btn-primary inline-flex items-center gap-2">
-                                <ShoppingBag className="w-5 h-5" />
-                                تصفح المنتجات
-                            </Link>
-                        </motion.div>
-                    ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {/* Wishlist items would be mapped here */}
-                        </div>
-                    )}
-                </div>
+        {ready && items.length > 0 ? (
+          <>
+            <motion.p
+              className="cc-result-count"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              {items.length} لعبة في المفضلة
+            </motion.p>
+            <div className="cc-products-grid">
+              {items.map((p, index) => (
+                <motion.div
+                  key={p.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.1, duration: 0.4 }}
+                >
+                  <ProductCard product={p} />
+                </motion.div>
+              ))}
             </div>
-
-            <Footer />
-        </main>
-    )
+          </>
+        ) : (
+          <motion.div
+            className="cc-wishlist-empty"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <motion.div
+              className="cc-wishlist-empty-emoji"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+            >
+              <Heart size={80} strokeWidth={1} color="var(--cc-muted)" />
+            </motion.div>
+            <h2>
+              {ready ? 'المفضلة فاضية' : 'جاري تحميل اختياراتك...'}
+            </h2>
+            <p>
+              {ready
+                ? 'اضغط على القلب جنب أي لعبة عشان تحفظها هنا.'
+                : 'استنى ثواني...'}
+            </p>
+            {ready && (
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Link href="/products" className="cc-button">
+                  اكتشف الألعاب
+                </Link>
+              </motion.div>
+            )}
+          </motion.div>
+        )}
+      </div>
+      <Footer />
+    </main>
+  )
 }
