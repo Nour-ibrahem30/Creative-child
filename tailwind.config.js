@@ -9,12 +9,12 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                primary: '#8B5CF6',
-                'primary-light': '#A78BFA',
-                'primary-dark': '#7C3AED',
-                secondary: '#06B6D4',
-                'secondary-light': '#22D3EE',
-                accent: '#F59E0B',
+                primary: '#214e3d',
+                'primary-light': '#76917c',
+                'primary-dark': '#183c2d',
+                secondary: '#d48550',
+                'secondary-light': '#ebbc90',
+                accent: '#d99451',
                 'accent-light': '#FBBF24',
                 success: '#10B981',
                 danger: '#EF4444',
@@ -83,3 +83,4 @@ module.exports = {
     },
     plugins: [],
 }
+
